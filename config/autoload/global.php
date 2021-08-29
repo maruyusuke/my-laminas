@@ -16,6 +16,7 @@ return [
     // ...
     'db' => [
         'driver' => 'Pdo',
-        'dsn'    => sprintf('sqlite:%s/data/commandline.db', realpath(getcwd())),
+        'dsn'    => sprintf('sqlite:%s/data/posts_test.db', realpath(getcwd())),
+        //'dsn'    => sprintf('sqlite:%s/data/commandline.db', realpath(getcwd())),
     ],
 ];
