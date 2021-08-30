@@ -9,9 +9,11 @@ use Laminas\ServiceManager\Factory\InvokableFactory;
 return [
       'service_manager' => [
         'aliases' => [
+          Model\PostCommandInterface::class => Model\PostCommand::class,
           Model\PostRepositoryInterface::class => Model\LaminasDbSqlRepository::class,
         ],
         'factories' => [
+          Model\PostCommand::class => InvokableFactory::class,
           Model\PostRepository::class => InvokableFactory::class,
           Model\LaminasDbSqlRepository::class => Factory\LaminasDbSqlRepositoryFactory::class,
         ],
@@ -21,6 +23,8 @@ return [
           'factories' => [
           // Controller\ListController::class => InvokableFactory::class,
           Controller\ListController::class => Factory\ListControllerFactory::class,
+          // add this
+          Controller\WriteController::class => Factory\WriteControllerFactory::class,
           ],
       ],
       
@@ -53,10 +57,22 @@ return [
                         'action' => 'detail',
                     ],
                     'constraints' => [
-                        'id' => '[1-9]\d*',
+                         'id' => '\d+',//'[1-9]\d*',
                     ],
                   ],
                 ],
+//add this
+                'add' => [
+                  'type' => Literal::class,
+                  'options' => [
+                    'route'    => '/add',
+                    'defaults' => [
+                      'controller' => Controller\WriteController::class,
+                      'action'     => 'add',
+                    ],
+                  ],
+                ],
+
               ],
           ],
         ],
