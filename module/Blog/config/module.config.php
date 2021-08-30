@@ -3,6 +3,7 @@
 namespace Blog;
 
 use Laminas\Router\Http\Literal;
+use Laminas\Router\Http\Segment;
 use Laminas\ServiceManager\Factory\InvokableFactory;
 
 return [
@@ -42,6 +43,21 @@ return [
                 'action'     => 'index',
               ],
             ],
+            'may_terminate' => true,
+              'child_routes'  => [
+                'detail' => [
+                  'type' => Segment::class,
+                  'options' => [
+                    'route'    => '/:id',
+                    'defaults' => [
+                        'action' => 'detail',
+                    ],
+                    'constraints' => [
+                        'id' => '[1-9]\d*',
+                    ],
+                  ],
+                ],
+              ],
           ],
         ],
       ],

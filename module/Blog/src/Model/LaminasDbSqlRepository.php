@@ -2,7 +2,7 @@
 
 namespace Blog\Model;
 
-use InvaildArgumentException;
+use InvalidArgumentException;
 use RuntimeException;
 
 use Laminas\Hydrator\HydratorInterface;
@@ -66,7 +66,7 @@ class LaminasDbSqlRepository implements PostRepositoryInterface
 
   /**
    * {@inheritDoc}
-   * @throws InvaildArgumentException
+   * @throws InvalidArgumentException
    * @throws RuntimeException
    */
   public function findPost($id)
