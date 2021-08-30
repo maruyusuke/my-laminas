@@ -4,10 +4,13 @@ namespace Blog\Model;
 
 use InvaildArgumentException;
 use RuntimeException;
+
+use Laminas\Hydrator\HydratorInterface;
+// use Laminas\Hydrator\ReflectionHydrator;
 use Laminas\Db\Adapter\AdapterInterface;
-use Laminas\Db\Sql\Sql;
 use Laminas\Db\Adapter\Driver\ResultInterface;
-use Laminas\Db\ResultSet\ResultSet;
+use Laminas\Db\ResultSet\HydratingResultSet;
+use Laminas\Db\Sql\Sql;
 
 
 class LaminasDbSqlRepository implements PostRepositoryInterface
@@ -18,11 +21,29 @@ class LaminasDbSqlRepository implements PostRepositoryInterface
    */
   private $db;
 
-  public function __construct(AdapterInterface $db)
-  {
-    $this->db = $db;
+  /**
+   * @var HydratorInterface
+   */
+  private $hydrator;
+
+  /**
+   * @var Post
+   */
+  private $postPrototype;
+
+
+  public function __construct(
+    AdapterInterface $db,
+    HydratorInterface $hydrator,
+    Post $postPrototype
+  ){
+        $this->db = $db;
+        $this->hydrator = $hydrator;
+        $this->postPrototype = $postPrototype;
   }
   /**
+   * 繰り返してselectで全てのblog postをセットします
+   * 
    * {@inheritDoc}
    */
   public function findAllPosts()
@@ -32,16 +53,13 @@ class LaminasDbSqlRepository implements PostRepositoryInterface
     $stmt   = $sql->prepareStatementForSqlObject($select);
     $result = $stmt->execute();
 
-    if ($result instanceof ResultInterface && $result->isQueryResult()) {
-      $resultSet = new ResultSet();
-      $resultSet->initialize($result);
-      var_export($resultSet);
-      die();
+    if (! $result instanceof ResultInterface ||! $result->isQueryResult()) {
+      return [];
     }
 
-    die('no data');
-   
-    //return $result;
+    $resultSet = new HydratingResultSet($this->hydrator, $this->postPrototype);
+    $resultSet->initialize($result);
+    return $resultSet;
     
 
   }
@@ -53,9 +71,34 @@ class LaminasDbSqlRepository implements PostRepositoryInterface
    */
   public function findPost($id)
   {
+    $sql       = new Sql($this->db);
+    $select    = $sql->select('posts');
+    $select->where(['id = ?' => $id]);
 
+    $statement = $sql->prepareStatementForSqlObject($select);
+    $result    = $statement->execute();
+
+    if (! $result instanceof ResultInterface || ! $result->isQueryResult()) {
+      throw new RuntimeException(sprintf(
+        'ID： "%S" のブログ内容の取得に失敗しました。不明なデータベースエラーです。',
+        $id
+      ));
+
+    }
+
+    $resultSet = new HydratingResultSet($this->hydrator, $this->postPrototype);
+    $resultSet->initialize($result);
+    $post = $resultSet->current();
+
+    if(! $post){
+      throw new InvalidArgumentException(sprintf(
+        'ID : "%s" のブログが見つかりません。',
+        $id
+      ));
+    }
+    return $post;
   }
-
+  
 
 }
 
