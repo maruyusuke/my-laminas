@@ -86,21 +86,4 @@ return [
 ];
 
 
-
-
-// return [
-
-//   'controllers' => [
-//       'factories' => [
-//           Controller\ListController::class => InvokableFactory::class,
-//       ],
-//   ],
-
-   
-
-  
-// ];
-
-
-
 ?>

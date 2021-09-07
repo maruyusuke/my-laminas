@@ -28,9 +28,41 @@ class WriteController extends AbstractActionController
 
   public function addAction()
   {
-    return new ViewModel([
-      'form' => $this->form,
-    ]);
+    // return new ViewModel([
+    //   'form' => $this->form,
+    // ]);
+
+    $request = $this->getRequest();
+    $viewModel = new ViewModel(['form' => $this->form]);
+
+    if(! $request->isPost()){
+      return $viewModel;
+    }
+
+    $this->form->setData($request->getPost());
+
+    if(! $this->form->isValid()){
+      return $viewModel;
+    }
+
+    $data = $this->form->getData()['post'];
+    $post = new Post($data['title'],$data['text']);
+
+    try{
+      $post = $this->command->insertPost($post);
+
+    } catch(\Exception $ex){
+      // An exception occurred; we may want to log this later and/or
+        // report it to the user. For now, we'll just re-throw.
+      throw $ex;
+    }
+
+    return $this->redirect()->toRoute(
+      'blog/detail',
+      ['id' => $post->getId()]
+    );
+
+
   }
 }
 ?>
