@@ -20,4 +20,5 @@ return [
     'Application',
     'Album', // <-- Add this line
     'Blog', // add this for making Blog
+    // 'Test',//make my MVC-Test
 ];
